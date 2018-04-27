@@ -10,7 +10,9 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Swashbuckle.AspNetCore.Swagger;
+using WebAppPi.Services;
 
 namespace WebAppPi
 {
@@ -26,6 +28,9 @@ namespace WebAppPi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var settings = Configuration.GetSection("Settings").Get<AppSettings>();
+            services.AddSingleton<AppSettings>(x=>settings);
+
             services.AddMvc();
 
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
@@ -34,6 +39,8 @@ namespace WebAppPi
                 var factory = x.GetRequiredService<IUrlHelperFactory>();
                 return factory.GetUrlHelper(actionContext);
             });
+
+            services.AddSingleton<IHostedService, MqttService>();
 
             services.AddSwaggerGen(c =>
             {
