@@ -49,7 +49,7 @@ namespace WebAppPi.Services
 
         private void Callback(object state)
         {
-            _client.Publish(_settings.MqttTopic, Encoding.UTF8.GetBytes($"{DateTime.Now}"));
+            //_client.Publish(_settings.MqttTopic, Encoding.UTF8.GetBytes($"{DateTime.Now}"));
         }
 
         public void MqttDown()

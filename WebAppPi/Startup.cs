@@ -8,9 +8,13 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
 using WebAppPi.Services;
 
@@ -28,10 +32,25 @@ namespace WebAppPi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var settings = Configuration.GetSection("Settings").Get<AppSettings>();
-            services.AddSingleton<AppSettings>(x=>settings);
 
+            AppSettings settings = null;
+            services.Configure<AppSettings>(Configuration);
+            services.AddTransient(c => settings = c.GetRequiredService<IOptions<AppSettings>>().Value);
+            
             services.AddMvc();
+
+            if (settings != null)
+            {
+                services.AddDbContext<Db.Db>(o =>
+                {
+                    o.UseLoggerFactory(new LoggerFactory(new[] { new ConsoleLoggerProvider((_, __) => true, true) }));
+                    o.UseSqlite(settings.SqliteConnectionString);
+                });
+            }
+            else
+            {
+                services.AddDbContext<Db.Db>(o => o.UseSqlite("DataSource=local.db"));
+            }
 
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddScoped<IUrlHelper>(x => {

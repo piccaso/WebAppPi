@@ -10,5 +10,6 @@ namespace WebAppPi
         public string MqttHost { get; set; }
         public int MqttPort { get; set; }
         public string MqttTopic { get; set; }
+        public string SqliteConnectionString { get; set; }
     }
 }
