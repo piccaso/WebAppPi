@@ -44,12 +44,12 @@ namespace WebAppPi.Services
             _client.Connect(Guid.NewGuid().ToString().Replace("-",""));
             _client.MqttMsgPublishReceived += ClientOnMqttMsgPublishReceived;
             _client.Subscribe(new[] { _settings.MqttTopic }, new[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE });
-            _timer = new Timer(Callback, null, 0, 1000);
+            _timer = new Timer(Callback, null, 0, 1000*60*10);
         }
 
         private void Callback(object state)
         {
-            //_client.Publish(_settings.MqttTopic, Encoding.UTF8.GetBytes($"{DateTime.Now}"));
+            _client.Publish(_settings.MqttTopic, Encoding.UTF8.GetBytes($"{DateTime.Now}"));
         }
 
         public void MqttDown()
